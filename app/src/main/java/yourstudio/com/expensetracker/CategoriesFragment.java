@@ -13,55 +13,36 @@ import yourstudio.com.expensetracker.DatabaseHelper;
 import yourstudio.com.expensetracker.R;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class CategoriesFragment extends Fragment {
 
     private ListView listView;
-    private ArrayList<String> categoryDisplayList;
-    private ArrayAdapter<String> adapter;
     private DatabaseHelper dbHelper;
-
-    public CategoriesFragment() {}
+    private GroupedCategoryAdapter adapter;
+    private List<Category> displayList;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_categories, container, false);
-
         listView = view.findViewById(R.id.listViewCategories);
         dbHelper = new DatabaseHelper(getContext());
-        categoryDisplayList = new ArrayList<>();
 
-        loadGroupedCategories();
+        displayList = new ArrayList<>();
 
-        adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, categoryDisplayList);
+        // Group Income
+        displayList.add(new Category("🔵 Income Categories", true));
+        List<Category> incomeCats = dbHelper.getCategoriesByTypeList("Income");
+        displayList.addAll(incomeCats);
+
+        // Group Expense
+        displayList.add(new Category("🔴 Expense Categories", true));
+        List<Category> expenseCats = dbHelper.getCategoriesByTypeList("Expense");
+        displayList.addAll(expenseCats);
+
+        adapter = new GroupedCategoryAdapter(getContext(), displayList, dbHelper);
         listView.setAdapter(adapter);
 
         return view;
-    }
-
-    private void loadGroupedCategories() {
-        categoryDisplayList.clear();
-
-        // Load Income categories
-        categoryDisplayList.add("🔵 Income Categories:");
-        Cursor incomeCursor = dbHelper.getCategoriesByType("Income");
-        if (incomeCursor != null && incomeCursor.moveToFirst()) {
-            do {
-                String name = incomeCursor.getString(incomeCursor.getColumnIndex("name"));
-                categoryDisplayList.add("   • " + name);
-            } while (incomeCursor.moveToNext());
-            incomeCursor.close();
-        }
-
-        // Load Expense categories
-        categoryDisplayList.add("🔴 Expense Categories:");
-        Cursor expenseCursor = dbHelper.getCategoriesByType("Expense");
-        if (expenseCursor != null && expenseCursor.moveToFirst()) {
-            do {
-                String name = expenseCursor.getString(expenseCursor.getColumnIndex("name"));
-                categoryDisplayList.add("   • " + name);
-            } while (expenseCursor.moveToNext());
-            expenseCursor.close();
-        }
     }
 }
