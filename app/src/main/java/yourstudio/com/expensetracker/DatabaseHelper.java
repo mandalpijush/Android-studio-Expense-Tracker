@@ -108,5 +108,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public void insertCategory(String name, String type) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("name", name);
+        values.put("type", type);
+        db.insert("categories", null, values);
+    }
+
+
 
 }
