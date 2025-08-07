@@ -117,5 +117,66 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
 
+    public double getSpentForCategory(int categoryId, String monthYear) {
+        SQLiteDatabase db = this.getReadableDatabase();
+
+        // Use 'YYYY-MM' format to match beginning of date string
+        Cursor cursor = db.rawQuery(
+                "SELECT SUM(amount) FROM transactions WHERE category_id = ? AND date LIKE ?",
+                new String[]{String.valueOf(categoryId), "%" + convertToYYYYMM(monthYear) + "%"}
+        );
+
+        double total = 0;
+        if (cursor.moveToFirst()) {
+            total = cursor.getDouble(0);
+        }
+        cursor.close();
+        return total;
+    }
+
+    private String convertToYYYYMM(String monthYear) {
+        // Converts "08-2025" to "2025-08"
+        String[] parts = monthYear.split("-");
+        return parts[1] + "-" + parts[0];
+    }
+
+    public double getBudgetForCategory(int categoryId, String month) {
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery(
+                "SELECT amount FROM budgets WHERE category_id = ? AND month = ?",
+                new String[]{String.valueOf(categoryId), month}
+        );
+        double amount = 0;
+        if (cursor.moveToFirst()) {
+            amount = cursor.getDouble(0);
+        }
+        cursor.close();
+        return amount;
+    }
+
+    public void saveOrUpdateBudget(int categoryId, String month, double amount) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        ContentValues values = new ContentValues();
+        values.put("month", month);
+        values.put("category_id", categoryId);
+        values.put("amount", amount);
+        db.insertWithOnConflict(TABLE_BUDGETS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+    }
+
+    public List<Category> getAllCategories() {
+        List<Category> list = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM categories ORDER BY type ASC, name ASC", null);
+        while (cursor.moveToNext()) {
+            list.add(new Category(
+                    cursor.getInt(cursor.getColumnIndex("id")),
+                    cursor.getString(cursor.getColumnIndex("name")),
+                    cursor.getString(cursor.getColumnIndex("type"))
+            ));
+        }
+        cursor.close();
+        return list;
+    }
+
 
 }
