@@ -25,8 +25,7 @@ public class BudgetsFragment extends Fragment {
     public BudgetsFragment() {}
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_budgets, container, false);
 
         txtSelectedMonth = view.findViewById(R.id.txtSelectedMonth);
@@ -52,7 +51,7 @@ public class BudgetsFragment extends Fragment {
                 (view, year, month, day) -> {
                     selectedMonth = String.format(Locale.getDefault(), "%02d-%d", month + 1, year);
                     txtSelectedMonth.setText(selectedMonth);
-                    loadBudgetItems(); // Reload with new month
+                    loadBudgetItems();
                 },
                 calendar.get(Calendar.YEAR),
                 calendar.get(Calendar.MONTH),
@@ -65,17 +64,33 @@ public class BudgetsFragment extends Fragment {
         budgetItems = new ArrayList<>();
         List<Category> allCategories = dbHelper.getAllCategories();
 
+        // Group headers
+        budgetItems.add(new BudgetItem("🔵 Income Budgets", true));
         for (Category cat : allCategories) {
-            int categoryId = cat.getId();
-            String categoryName = cat.getName();
-            double spent = dbHelper.getSpentForCategory(categoryId, selectedMonth);
-            double budgetSet = dbHelper.getBudgetForCategory(categoryId, selectedMonth);
+            if ("Income".equalsIgnoreCase(cat.getType())) {
+                addBudgetItemFromCategory(cat);
+            }
+        }
 
-            BudgetItem item = new BudgetItem(categoryId, categoryName, budgetSet, spent);
-            budgetItems.add(item);
+        budgetItems.add(new BudgetItem("🔴 Expense Budgets", true));
+        for (Category cat : allCategories) {
+            if ("Expense".equalsIgnoreCase(cat.getType())) {
+                addBudgetItemFromCategory(cat);
+            }
         }
 
         adapter = new BudgetAdapter(getContext(), budgetItems, selectedMonth, dbHelper);
         recyclerBudgets.setAdapter(adapter);
+    }
+
+    private void addBudgetItemFromCategory(Category cat) {
+        int categoryId = cat.getId();
+        String categoryName = cat.getName();
+        String type = cat.getType();
+        double spent = dbHelper.getSpentForCategory(categoryId, selectedMonth);
+        double budgetSet = dbHelper.getBudgetForCategory(categoryId, selectedMonth);
+
+        BudgetItem item = new BudgetItem(categoryId, categoryName, budgetSet, spent, type);
+        budgetItems.add(item);
     }
 }
