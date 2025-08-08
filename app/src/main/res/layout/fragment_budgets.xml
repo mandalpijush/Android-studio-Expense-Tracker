@@ -6,6 +6,41 @@
     android:layout_height="match_parent">
 
     <LinearLayout
+        android:id="@+id/monthPickerLayout"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp">
+
+        <ImageButton
+            android:id="@+id/btnPrevMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_previous"
+            android:contentDescription="Previous Month" />
+
+        <TextView
+            android:id="@+id/txtSelectedMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Jan-2025"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:paddingHorizontal="16dp" />
+
+        <ImageButton
+            android:id="@+id/btnNextMonth"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="?android:selectableItemBackgroundBorderless"
+            android:src="@android:drawable/ic_media_next"
+            android:contentDescription="Next Month" />
+    </LinearLayout>
+
+
+    <!--<LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -24,7 +59,7 @@
             android:text="Pick Month"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
-    </LinearLayout>
+    </LinearLayout> -->
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerBudgets"

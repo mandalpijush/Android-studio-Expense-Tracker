@@ -22,14 +22,23 @@ public class BudgetsFragment extends Fragment {
     private List<BudgetItem> budgetItems;
     private BudgetAdapter adapter;
 
+    private ImageButton btnPrevMonth, btnNextMonth;
+    private Calendar selectedCalendar;
+
     public BudgetsFragment() {}
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_budgets, container, false);
 
+        btnPrevMonth = view.findViewById(R.id.btnPrevMonth);
+        btnNextMonth = view.findViewById(R.id.btnNextMonth);
         txtSelectedMonth = view.findViewById(R.id.txtSelectedMonth);
-        btnPickMonth = view.findViewById(R.id.btnPickMonth);
+
+        selectedCalendar = Calendar.getInstance();
+        updateMonthLabel();
+
+
         recyclerBudgets = view.findViewById(R.id.recyclerBudgets);
 
         dbHelper = new DatabaseHelper(getContext());
@@ -40,9 +49,25 @@ public class BudgetsFragment extends Fragment {
 
         loadBudgetItems();
 
-        btnPickMonth.setOnClickListener(v -> showMonthPicker());
+        btnPrevMonth.setOnClickListener(v -> {
+            selectedCalendar.add(Calendar.MONTH, -1);
+            updateMonthLabel();
+            loadBudgetItems();
+        });
+
+        btnNextMonth.setOnClickListener(v -> {
+            selectedCalendar.add(Calendar.MONTH, 1);
+            updateMonthLabel();
+            loadBudgetItems();
+        });
 
         return view;
+    }
+
+    private void updateMonthLabel() {
+        SimpleDateFormat sdf = new SimpleDateFormat("MMM-yyyy", Locale.getDefault());
+        selectedMonth = new SimpleDateFormat("MM-yyyy", Locale.getDefault()).format(selectedCalendar.getTime());
+        txtSelectedMonth.setText(sdf.format(selectedCalendar.getTime()));
     }
 
     private void showMonthPicker() {
